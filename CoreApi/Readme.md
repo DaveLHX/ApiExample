@@ -1,0 +1,1 @@
+﻿Simple .Net Core api example with Swagger doc and secured with JWT.

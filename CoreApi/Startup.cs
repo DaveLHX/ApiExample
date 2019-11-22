@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace CoreApi
 {
@@ -27,10 +30,38 @@ namespace CoreApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Values Api", Version = "v1" });
             });
+
+            // configure jwt authentication
+            //var appSettings = appSettingsSection.Get<AppSettings>();
+            //var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            var key = Encoding.ASCII.GetBytes("hello this is my scret key I hope you like and enjoy it very much");
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+         .AddJwtBearer(x =>
+         {
+             x.RequireHttpsMetadata = false;
+             x.SaveToken = true;
+             x.TokenValidationParameters = new TokenValidationParameters
+             {
+                 ValidateIssuerSigningKey = true,
+                 IssuerSigningKey = new SymmetricSecurityKey(key),
+                 ValidateIssuer = false,
+                 //ValidIssuer = "http://localhost:45092/",                
+                 ValidateAudience = false,
+                 //ValidAudience = "SomeAudience",
+                 RequireExpirationTime = true,
+                 ValidateLifetime = true,
+                 ClockSkew = TimeSpan.Zero
+             };
+         });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,7 +75,8 @@ namespace CoreApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            //here
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
