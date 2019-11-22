@@ -21,11 +21,7 @@ namespace CoreApi.Controllers
     [Route("[controller]")]
     public class ApiTestController : ControllerBase
     {
-        IList<Element> _Elements;
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        IList<Element> _Elements;     
 
         private readonly ILogger<ApiTestController> _logger;
 
@@ -38,31 +34,27 @@ namespace CoreApi.Controllers
             _Elements.Add(new Element() { Id = 2, Language = "en", Name = "Air" });
             _Elements.Add(new Element() { Id = 2, Language = "fr", Name = "Aviation" });
             _Elements.Add(new Element() { Id = 3, Language = "en", Name = "Sea" });
-            _Elements.Add(new Element() { Id = 3, Language = "fr", Name = "Marine" });
-
-     
+            _Elements.Add(new Element() { Id = 3, Language = "fr", Name = "Marine" });     
         }
-        //[AllowAnonymous]
-        //[HttpGet]      
-        //public IEnumerable<WeatherForecast> Get()
-        //{
-        //    var rng = new Random();
-        //    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        //    {
-        //        Date = DateTime.Now.AddDays(index),
-        //        TemperatureC = rng.Next(-20, 55),
-        //        Summary = Summaries[rng.Next(Summaries.Length)]
-        //    })
-        //    .ToArray();
-        //}
+       
+
+        /// <summary>
+        /// Create a JWT token for the user name passed in parameter
+        /// </summary>
+        /// <param name="name">the user name</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("GetAJwtToken/{name}", Name = "Get Token For test")]
         public User GetToken(string name)
         {          
-           return  Authenticate(name);
+           return CreateToken(name);
         }
 
-
+        /// <summary>
+        /// Returns a list of military elements.
+        /// </summary>
+        /// <param name="language">The language you want the list in. (fr,en)</param>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("Elements/{language}", Name = "Get Elements")]
         public IEnumerable<Element> GetElements(string language)
@@ -74,10 +66,13 @@ namespace CoreApi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Welcome to the api.  Check the /Swagger endpoint");
+            return Ok("Welcome to the api.  Check the /swagger endpoint for api documentation");
         }
 
-
+        /// <summary>
+        /// Get a list of all users
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         [HttpGet("Users", Name = "Get Users")]
         public IEnumerable<User> GetUsers()
@@ -91,6 +86,11 @@ namespace CoreApi.Controllers
         {
             return Ok(_users);
         }
+
+        /// <summary>
+        /// Get the authentified users details.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("UsersShowClaim", Name = "Get JWT claim")]
         public IActionResult GetClaimInfo()
         {
@@ -134,7 +134,7 @@ namespace CoreApi.Controllers
 
 
 
-        private User Authenticate(string name)
+        private User CreateToken(string name)
         {
             var fakeUser = new User { Id = 99, FirstName = name, LastName = "LastName", Username = $"{name}.LastName"};
 
